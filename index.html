@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Inter', sans-serif;" id="bodyID">
+  <div id="app">
+
+       
+<div class="col-md-12">
+    
+  <header class="d-flex align-items-center pb-3 mb-5" :style="`border-bottom: 2px solid white;background-color:${header_background_color};`">
+    <a :href="brand_url" class="d-flex align-items-center text-dark text-decoration-none" target="_blank">
+      <img :src="brand_logo" class="m-1" height="100px" width="100px">
+      <h4  :style="`color:${brand_name_font_color};vertical-align:center;margin:30px;`">{{brand_name}}</h4>
+    </a>
+  </header>
+  
+    <main>
+  
+      
+
+    <div class="container mt-5">
+        
+      <div class="row">
+        <div class="col-md-5" >
+        </div>
+        <div class="col-md-4">
+
+        </div>
+        <div class="col-md-3">
+          <select v-model="selectedBundle" id="order-select" class="form-select"  @change="filterBundles">
+            <option disabled value="">Select Pack </option>
+            <option v-for="product_bundle in product_bundles" :value="product_bundle.product.id">{{ product_bundle.product.product_name }}</option>
+        </select>
+        </div>
+      </div>
+
+      <div v-if="orderDownloads.length == 0" class="row mt-5">
+        <div class="col-md-12 text-center">
+          <h5>Select Video Pack To Display Your Downloads</h5>
+        </div>
+      </div>
+      
+      </div>
+
+
+      <div class="container">
+        <div class="row mt-5">
+          <div class="col-md-12 text-center">
+            <img v-if="isLoading" src="https://raw.githubusercontent.com/n3r4zzurr0/svg-spinners/main/svg-css/90-ring-with-bg.svg" height="50" width="50"/>
+
+          </div>
+        </div>
+        
+      <div class="row mt-5">
+        <div class="col-md-12">
+          <div class="row mt-5">
+
+            <div class="col-md-3 card m-2" v-for="orderDownload in orderDownloads">
+              <img :src=getProductTopImage class="card-img-top mt-2">
+              <div class="card-body mt-2">
+                <h6 class="card-title text-capitalize" style="font-weight: bold;">{{ orderDownload.file_display_name }}</h6>
+                <div class="card-footer mt-3 text-center" style="background-color: white;">
+                  <a class="btn w-100 btn-lg" target="_blank" :href=orderDownload.file_url  :style="`background-color: ${button_background_color};color:${button_font_color}`">Download</a>
+                </div>
+              </div> 
+
+            </div>
+
+
+            
+          </div>
+        </div>
+      </div>
+      </div>
+  
+
+  
+    </main>
+    <footer class="p-5 my-5 text-muted border-top">
+      &copy;visualfoxpro.com
+    </footer>
+  </div>
+
+
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.3/axios.min.js" integrity="sha512-L4lHq2JI/GoKsERT8KYa72iCwfSrKYWEyaBxzJeeITM9Lub5vlTj8tufqYk056exhjo2QDEipJrg6zen/DDtoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        isLoading:false,
+        selectedBundle: '',
+        product_bundles: [],
+        orderDetails: [],
+        filteredBundle:'',
+        modalData: null,
+        showModal: false,
+        orderDownloads:[],
+        isLoaderOn:true,
+            header_background_color: "",
+            header_font_color: "",
+            page_background_color: "",
+            card_background_color: "",
+            card_font_color: "",
+            button_background_color: "",
+            header_message: "Hi, Add Your Greeting Message here",
+            header_message_optional: "Thanks for purchasing the order",
+            button_font_color: "",
+            badge_background_color: "black",
+            badge_font_color: "white",
+            brand_url:"",
+            brand_name:"",
+            brand_logo:"",
+            brand_footer:"",
+            sub_header_font_color:"",
+            fontFamily:'',
+            bodyFontFamily:'',
+	    brand_name_font_color:"",
+      showModal: false,
+      modalTitle: "Modal Title",
+      orderDownload: {}
+      },
+      created() {
+        this.getProductBundles()
+      },
+      mounted(){
+
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+
+  //now let's load the data here
+  const store_url = params.store_url;
+  const ref = params.ref;
+
+  console.log(store_url) // outputs 'yay'
+  console.log("this one is always awesome !");
+  //now do the remaining stuff here please.
+ 
+
+  fetch(`https://app.sellkite.xyz/api/v1/preview/?store=${store_url}`)
+  .then((response) => response.json())
+  .then((data) => {
+
+    console.log(data)
+    if(data.status == 'success'){
+
+    this.isLoaderOn = false;
+      console.log("this is the api call response")
+      console.log(data.data.page_settings.header_background_color)
+        this.header_background_color = data.data.page_settings.header_background_color;
+        this.header_font_color = data.data.page_settings.header_font_color ;
+        this.card_background_color =  data.data.page_settings.card_background_color;
+        this.card_font_color =  data.data.page_settings.card_font_color;
+        this.button_background_color =  data.data.page_settings.button_background_color;
+        this.sub_header_font_color = data.data.page_settings.sub_header_font_color;
+        this.additionalCSS = data.data.page_settings.additional_css;
+        this.brand_name_font_color = data.data.page_settings.brand_name_font_color;
+        this.page_background_color = data.data.page_settings.page_background_color;
+
+        this.header_message = data.data.page_settings.header_message;
+        
+        this.header_message_optional = data.data.page_settings.header_message_optional;
+        this.button_font_color = data.data.page_settings.button_font_color;
+        this.badge_background_color = data.data.page_settings.badge_background_color;
+        this.badge_font_color = data.data.page_settings.badge_font_color;
+
+        this.brand_logo = data.data.email_settings.company_logo;
+        this.brand_name = data.data.email_settings.company_brand;
+        this.brand_url = '/';
+        this.fontFamily = data.data.page_settings.fontFamily.trim().split(' ').join('+')
+        this.bodyFontFamily = data.data.page_settings.fontFamily.trim()
+        this.brand_footer = data.data.email_settings.email_footer;
+
+
+        //add the link here
+        var link = document.createElement( "link" );
+        link.href = `https://fonts.googleapis.com/css2?family=${this.fontFamily}&display=swap`;
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        document.getElementsByTagName( "head" )[0].appendChild( link );
+
+        //attach the fontFamily & color here here
+        const body = document.getElementById("bodyID")
+        body.style.fontFamily = this.bodyFontFamily;
+        body.style.backgroundColor = this.page_background_color;
+        
+        
+
+    }
+  });
+
+
+},
+      computed: {
+        getProductTopImage(){
+          return ( this.filteredBundle.length > 0 ) ? this.filteredBundle[0].product.product_image : '';
+        }
+      },
+      methods: {
+
+        openModal(data) {
+          this.$refs.myModal.show();
+      },
+
+
+
+         getOrderDownloads:function(shop_url,customer_email){
+          return fetch(`http://localhost:8000/api/v1/customer/orders?email=${customer_email}@gmail.com&store_url=${shop_url}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(response => response.json())
+          
+        },
+
+        getProductBundles() {
+          let urlParams = new URLSearchParams(window.location.search);
+          let email = urlParams.get('email');
+          let store_url = urlParams.get('store_url');
+          fetch(`http://localhost:8000/api/v1/store/bundles?store_url=${store_url}`)
+          .then(response => response.json())
+          .then(response => {
+            console.log(response)
+            this.product_bundles = response.products
+           })
+          .catch(error => {
+            console.error(error);
+          })
+        
+        },
+
+        filterBundles() {
+            
+            console.log(this.selectedBundle)
+
+            this.filteredBundle = this.product_bundles.filter(bundle => bundle.product.id === this.selectedBundle)
+            console.log("Man this is the response")
+            console.log(this.filteredBundle)
+            //pass these filtered order over here
+            let urlParams = new URLSearchParams(window.location.search);
+            let store_url = urlParams.get('store_url');
+            let customer_email = urlParams.get('email');
+
+            //set the loading over here
+            this.isLoading = true;
+            
+            this.getOrderDownloads(store_url , customer_email)
+            .then((response) => {        
+              if(response.status){
+                console.log("This one is free")
+                console.log(this.filteredBundle)
+                /* here's the logic to view everything by files now */
+                var order_files = response.orders.map(order => order.files).flat();
+                var product_files = (this.filteredBundle.length > 0) ? this.filteredBundle[0].files: [];
+                
+                if(product_files.length > 0){
+                    var commonFiles = product_files.filter(product_file => {
+                      return order_files.some(order_file => order_file.id === product_file.id);
+                    });
+                    console.log("These are the common files man");
+                    this.orderDownloads = commonFiles; 
+                    
+                //set the loading over here
+                this.isLoading = false;
+
+                }
+                
+                /* ends here */
+            
+
+              }
+              console.log(response)
+            })
+
+
+            
+          }
+    }
+});
+
+</script>
+</body>
+
+
