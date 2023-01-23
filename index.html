@@ -217,7 +217,7 @@
 
 
          getOrderDownloads:function(shop_url,customer_email){
-          return fetch(`http://localhost:8000/api/v1/customer/orders?email=${customer_email}@gmail.com&store_url=${shop_url}`, {
+          return fetch(`https://app.sellkite.xyz/api/v1/customer/orders?email=${customer_email}@gmail.com&store_url=${shop_url}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json"
@@ -231,7 +231,7 @@
           let urlParams = new URLSearchParams(window.location.search);
           let email = urlParams.get('email');
           let store_url = urlParams.get('store_url');
-          fetch(`http://localhost:8000/api/v1/store/bundles?store_url=${store_url}`)
+          fetch(`https://app.sellkite.xyz/api/v1/store/bundles?store_url=${store_url}`)
           .then(response => response.json())
           .then(response => {
             console.log(response)
