@@ -33,21 +33,27 @@
         
       <div class="row">
         <div class="col-md-5" >
+          <a href="https://visualfxpro.com/account"><img src="https://img.icons8.com/ios/50/null/circled-left-2.png"/></a>
         </div>
         <div class="col-md-4">
 
         </div>
-        <div class="col-md-3">
-          <select v-model="selectedBundle" id="order-select" class="form-select"  @change="filterBundles">
+        <div class="col-md-3 text-center">
+
+          <img v-if="isSelectLoading"  src="https://raw.githubusercontent.com/n3r4zzurr0/svg-spinners/main/svg-css/90-ring-with-bg.svg" height="50" width="50"/>
+
+          <select v-if="!isSelectLoading" v-model="selectedBundle" id="order-select" class="form-select"  @change="filterBundles">
             <option disabled value="">Select Pack </option>
-            <option v-for="product_bundle in product_bundles" :value="product_bundle.product.id">{{ product_bundle.product.product_name }}</option>
+            <optgroup v-for="product_bundle in product_bundles">
+              <option v-for="variant in product_bundle.product.product_variants" :value="product_bundle.product.id">{{product_bundle.product.product_name}}-{{ variant.name }}</option>
+            </optgroup>
         </select>
         </div>
       </div>
 
-      <div v-if="orderDownloads.length == 0" class="row mt-5">
+      <div v-if="orderDownloads.length == 0 && !isSelectLoading" class="row mt-5">
         <div class="col-md-12 text-center">
-          <h5>Select Video Pack To Display Your Downloads</h5>
+          <h5>Select Pack To Display Your Downloads</h5>
         </div>
       </div>
       
@@ -58,7 +64,6 @@
         <div class="row mt-5">
           <div class="col-md-12 text-center">
             <img v-if="isLoading" src="https://raw.githubusercontent.com/n3r4zzurr0/svg-spinners/main/svg-css/90-ring-with-bg.svg" height="50" width="50"/>
-
           </div>
         </div>
         
@@ -88,7 +93,7 @@
   
     </main>
     <footer class="p-5 my-5 text-muted border-top">
-      &copy;visualfoxpro.com
+      &copy;visualfxpro.com
     </footer>
   </div>
 
@@ -100,6 +105,7 @@
       el: '#app',
       data: {
         isLoading:false,
+        isSelectLoading:true,
         selectedBundle: '',
         product_bundles: [],
         orderDetails: [],
@@ -231,11 +237,12 @@
           let urlParams = new URLSearchParams(window.location.search);
           let email = urlParams.get('email');
           let store_url = urlParams.get('store_url');
+          this.isSelectLoading = true;
           fetch(`https://app.sellkite.xyz/api/v1/store/bundles?store_url=${store_url}`)
           .then(response => response.json())
           .then(response => {
-            console.log(response)
-            this.product_bundles = response.products
+            this.product_bundles = response.products;
+            this.isSelectLoading = false;
            })
           .catch(error => {
             console.error(error);
@@ -274,8 +281,8 @@
                     console.log("These are the common files man");
                     this.orderDownloads = commonFiles; 
                     
-                //set the loading over here
-                this.isLoading = false;
+                    //set the loading over here
+                    this.isLoading = false;
 
                 }
                 
@@ -294,5 +301,4 @@
 
 </script>
 </body>
-
 
