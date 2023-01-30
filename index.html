@@ -223,7 +223,7 @@
 
 
          getOrderDownloads:function(shop_url,customer_email){
-          return fetch(`https://app.sellkite.xyz/api/v1/customer/orders?email=${customer_email}@gmail.com&store_url=${shop_url}`, {
+          return fetch(`https://app.sellkite.xyz/api/v1/customer/orders?email=${customer_email}&store_url=${shop_url}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json"
